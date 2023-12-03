@@ -1,3 +1,4 @@
+use std::cmp::max;
 use nom::branch::alt;
 use nom::bytes::complete::take_till;
 use nom::character::complete::{char, digit1, multispace0, space1};
@@ -73,6 +74,7 @@ fn main() -> anyhow::Result<()> {
 
     let (_, games) = parse_lines(input)?;
 
+    // Part 1
     let sum: u64 = games
         .iter()
         .filter(|game| {
@@ -94,7 +96,30 @@ fn main() -> anyhow::Result<()> {
         .map(|game| game.id)
         .sum();
 
-    println!("{sum}");
+    println!("Part 1 sum: {sum}");
+
+    // Part 2
+    let power_sum: u64 = games
+        .iter()
+        .map(|game| {
+            let (mut max_red, mut max_green, mut max_blue) = (1u64, 1u64, 1u64);
+
+            for set in &game.sets {
+                for color in set {
+                    match color {
+                        Color::Red(n) => { max_red = max(max_red, *n); }
+                        Color::Green(n) => { max_green = max(max_green, *n); }
+                        Color::Blue(n) => { max_blue = max(max_blue, *n); }
+                    }
+                }
+            }
+
+            (max_red, max_green, max_blue)
+        })
+        .map(|(r, g, b)| r * g * b)
+        .sum();
+
+    println!("Part 2 sum: {power_sum}");
 
     Ok(())
 }
